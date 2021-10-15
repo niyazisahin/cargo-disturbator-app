@@ -12,7 +12,6 @@ document.getElementById("btnSignUp").addEventListener('click', () => {
 })
 
 
-
 document.getElementById("btnReturnSignIn").addEventListener('click', () => {
     ipcRenderer.send('load-file', './index.html');
 })

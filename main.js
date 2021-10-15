@@ -1,10 +1,12 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, remote } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 const path = require('path')
 
 const { MongoClient } = require('mongodb');
 const { monitorEventLoopDelay } = require('perf_hooks');
+const { Console } = require('console');
+const { isProxy } = require('util/types');
 const uri = "mongodb+srv://Charon:Ns190202069@navigation.xptsq.mongodb.net/CargoAppDb?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -59,7 +61,6 @@ ipcMain.on('welcome', function (event, sentence) {
 });
 
 ipcMain.on('login-valid', (event, data) => {
-
   client.connect(async err => {
     const collection = client.db("CargoAppDb").collection("Users");
 
@@ -71,7 +72,7 @@ ipcMain.on('login-valid', (event, data) => {
 
       user = data;
 
-      console.log('yeni kullanici geldi : ' + data.UserName);
+      console.log('DEBUG: yeni kullanici geldi : ' + data.UserName);
 
     }
 
@@ -86,16 +87,35 @@ ipcMain.on('load-file', (event, data) => {
 });
 
 ipcMain.on('new-user', (event, data) => {
-console.log(data);
   client.connect(async err => {
     const collection = client.db("CargoAppDb").collection("Users");
 
     const res = await collection.insertOne(data);
-    
+
+    console.log('DEBUG: Yeni kullanici olusturuldu :' + res.UserName);
     client.close();
 
   });
 
 });
+
+ipcMain.on('password-change', (event, data) => {
+  client.connect(async err => {
+    const collection = client.db("CargoAppDb").collection("Users");
+
+    const query = { UserName: data.UserName, EMail: data.EMail }
+    const res = await collection.updateOne(query, { $set: { Password: data.Password } });
+    if (res.matchedCount > 0) {
+      event.reply('show-success-message');
+    } else {
+      event.reply('show-error-message');
+    }
+    client.close();
+
+  });
+
+});
+
+
 
 

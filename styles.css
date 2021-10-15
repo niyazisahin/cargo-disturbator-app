@@ -44,3 +44,15 @@ body {
   .md-social-btn .mbsc-ic {
     float: left;
 }
+
+.error-message{
+  color: red;
+  font-weight: bold;
+  display: none;
+}
+
+.success-message{
+  color: green;
+  font-weight: bold;
+  display: none;
+}
