@@ -56,3 +56,71 @@ body {
   font-weight: bold;
   display: none;
 }
+
+.transition-right{
+
+  right: 0;
+  background-color: #cd595a;
+
+}
+.transition-left{
+
+  left: 0;
+  background-color: #4298b5;
+
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #f5f5f5;
+}
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.split:hover{
+  opacity: 0.9;
+  transition: 0.5s;
+}
+
+.up{
+  height: 15%;
+  width: 100%;
+  background-color: #4298b5;
+  position: absolute;
+  top: 0;
+  align-items: center;
+}
+
+.down{
+  height: 85%;
+  width: 100%;
+  background-color: #cd595a;
+  position: absolute;
+  bottom: 0;
+  align-items: center;
+}
+
+.adress-input{
+  padding: 10px;
+  margin: 10px;
+  width: 80%;
+}
+
+#btn-add{
+  padding: 10px;
+  width: 15%;
+}
+
+
