@@ -74,6 +74,9 @@ ipcMain.on('login-valid', (event, data) => {
 
       console.log('DEBUG: yeni kullanici geldi : ' + data.UserName);
 
+      BrowserWindow.getFocusedWindow().loadFile('sahneler/transition.html');
+      console.log('DEBUG: sahneler/transition.html sayfasina gidiyoz.');
+
     }
 
   });
@@ -83,7 +86,7 @@ ipcMain.on('login-valid', (event, data) => {
 ipcMain.on('load-file', (event, data) => {
 
   BrowserWindow.getFocusedWindow().loadFile(data);
-  console.log('DEBUG: ' + data + ' sayfasina gidiyoz.')
+  console.log('DEBUG: ' + data + ' sayfasina gidiyoz.');
 });
 
 ipcMain.on('new-user', (event, data) => {

@@ -97,7 +97,6 @@ body {
 .up{
   height: 15%;
   width: 100%;
-  background-color: #4298b5;
   position: absolute;
   top: 0;
   align-items: center;
@@ -106,7 +105,6 @@ body {
 .down{
   height: 85%;
   width: 100%;
-  background-color: #cd595a;
   position: absolute;
   bottom: 0;
   align-items: center;
@@ -123,4 +121,6 @@ body {
   width: 15%;
 }
 
-
+#mapid { 
+  height: 100%; 
+}
