@@ -119,6 +119,19 @@ ipcMain.on('password-change', (event, data) => {
 
 });
 
+ipcMain.on('new-cord', (event, data) => {
+  console.log(data);
+  client.connect(async err => {
+    const collection = client.db("CargoAppDb").collection("Adresses");
+
+    const res = await collection.insertOne(data);
+
+    //console.log('DEBUG: Yeni Kordinat olusturuldu :' + res);
+    client.close();
+
+  });
+
+});
 
 
 
