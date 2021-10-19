@@ -40,6 +40,10 @@ body {
       font-size: 12px;
       opacity: 0.65;
   }
+  .forgot_password_label{
+    font-size: 12px;
+    opacity: 0.65;
+}
   
   .md-social-btn .mbsc-ic {
     float: left;
@@ -113,19 +117,34 @@ body {
 .adress-input{
   padding: 10px;
   margin: 10px;
+  width: 60%;
+}
+.search-input{
+  padding: 10px;
+  margin: 10px;
   width: 75%;
 }
 
 #btn-add{
   padding: 10px;
+  width: 8%;
+}
+
+#btn-back{
+  padding: 10px;
+  width: 8%;
+}
+#btn-search{
+  padding: 10px;
   width: 10%;
 }
 
-#btn-find{
+#btn-user-location{
   padding: 10px;
-  width: 10%;
+  width: 15%;
 }
 
 #mapid { 
   height: 100%; 
 }
+

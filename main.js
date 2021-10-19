@@ -122,7 +122,7 @@ ipcMain.on('password-change', (event, data) => {
 ipcMain.on('new-cord', (event, data) => {
   console.log(data);
   client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Adresses");
+    const collection = client.db("CargoAppDb").collection("Cargos");
 
     const res = await collection.insertOne(data);
 
@@ -130,8 +130,45 @@ ipcMain.on('new-cord', (event, data) => {
     client.close();
 
   });
-
 });
 
+ipcMain.on('new-user-cord', (event, data) => {
 
+  client.connect(async err => {
+
+    const collection = client.db("CargoAppDb").collection("Users");
+
+    const query = user;
+    const res = await collection.updateOne(query, { $set: data });
+    client.close();
+
+  });
+});
+
+function dc_to_html(inp) {
+
+  let new_html = "<tr> <th>" + inp.Adress + "</th> <th>" + inp.Coordinate.lat + "," + inp.Coordinate.lng + "</th> </tr>";
+
+  return new_html;
+}
+
+ipcMain.on('table-list', (event, data) => {
+
+  client.connect(async err => {
+
+    const collection = client.db("CargoAppDb").collection("Cargos");
+
+    const res = await collection.find().toArray();
+    var const_html = "<thead><tr><th>Cargo Name</th><th>Cargo Status</th></tr></thead>";
+
+    for(var i = 0; i<res.length; i++){
+      const_html += dc_to_html(res[i]);
+    }
+    event.reply('convert-html', const_html);
+
+    client.close();
+
+  });
+
+});
 

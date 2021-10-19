@@ -5,7 +5,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 console.log('database e giremedim.');
 client.connect(async err => {
   console.log('database e girdim');
-  const collection = client.db("CargoAppDb").collection("Users");
+  const collection = client.db("CargoAppDb").collection("Customers");
   
   let kullanici = {
 

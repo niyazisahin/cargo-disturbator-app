@@ -54,14 +54,28 @@ document.getElementById('btn-add').addEventListener('click', () => {
     if (value) {
 
         geocoder.geocode(value, (result) => {
-            let data = { name: value };
+            let data = { Adress: value };
             ipcRenderer.send('welcome', result[0].center);
-            data.cord = result[0].center;
+            data.Coordinate = result[0].center;
             ipcRenderer.send('new-cord', data);
         })
-
     }
+})
 
+document.getElementById('btn-back').addEventListener('click', () => {
+    ipcRenderer.send('load-file', 'sahneler/transition.html');
 })
 
 
+document.getElementById('btn-user-location').addEventListener('click', () => {
+    let value = document.getElementById('adress-input').value;
+    if (value) {
+
+        geocoder.geocode(value, (result) => {
+            let data = { Adress: value };
+            ipcRenderer.send('welcome', result[0].center);
+            data.Coordinate = result[0].center;
+            ipcRenderer.send('new-user-cord', data);
+        })
+    }
+})
