@@ -51,15 +51,19 @@ map.on('click', onMapClick);
 
 document.getElementById('btn-add').addEventListener('click', () => {
     let value = document.getElementById('adress-input').value;
-    if (value) {
+    let name = document.getElementById('customer-name').value;
+
+    if (value && name) {
 
         geocoder.geocode(value, (result) => {
-            let data = { Adress: value };
+            let data = { Adress: value, CustomerName:name };
             ipcRenderer.send('welcome', result[0].center);
             data.Coordinate = result[0].center;
             ipcRenderer.send('new-cord', data);
         })
+
     }
+
 })
 
 document.getElementById('btn-back').addEventListener('click', () => {

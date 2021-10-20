@@ -1,11 +1,11 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const path = require('path')
 
 const { MongoClient } = require('mongodb');
 const { monitorEventLoopDelay } = require('perf_hooks');
-const { Console } = require('console');
+const { Console, table } = require('console');
 const { isProxy } = require('util/types');
 const uri = "mongodb+srv://Charon:Ns190202069@navigation.xptsq.mongodb.net/CargoAppDb?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -123,7 +123,7 @@ ipcMain.on('new-cord', (event, data) => {
   console.log(data);
   client.connect(async err => {
     const collection = client.db("CargoAppDb").collection("Cargos");
-
+    data.Status = 'On its Way';
     const res = await collection.insertOne(data);
 
     //console.log('DEBUG: Yeni Kordinat olusturuldu :' + res);
@@ -147,7 +147,10 @@ ipcMain.on('new-user-cord', (event, data) => {
 
 function dc_to_html(inp) {
 
-  let new_html = "<tr> <th>" + inp.Adress + "</th> <th>" + inp.Coordinate.lat + "," + inp.Coordinate.lng + "</th> </tr>";
+  let new_html = "<tr><td>" + inp.CustomerName + " <td>" + inp.Adress + "</td> <td>" + inp.Status + "</td>" + `
+  <td class='but btn'>Delete</td>
+  <td class='but btn'>Add</td>
+  <td class='but btn'>Complete</td>` + "</tr>";
 
   return new_html;
 }
@@ -159,16 +162,58 @@ ipcMain.on('table-list', (event, data) => {
     const collection = client.db("CargoAppDb").collection("Cargos");
 
     const res = await collection.find().toArray();
-    var const_html = "<thead><tr><th>Cargo Name</th><th>Cargo Status</th></tr></thead>";
+    var const_html = `<thead><tr><th>Customer Name</th><th>Cargo Name</th><th>Cargo Status</th><th>Delete</th><th>Add</th><th>Complete</th></tr></thead>`;
 
-    for(var i = 0; i<res.length; i++){
-      const_html += dc_to_html(res[i]);
+    for (var i = 0; i < res.length; i++) {
+
+      if (res[i].Adress.includes(data)) {
+
+        const_html += dc_to_html(res[i]);
+      }
     }
+
     event.reply('convert-html', const_html);
+
+    client.close();
+  });
+
+});
+
+ipcMain.on('delete-cargo', (event, data) => {
+
+  client.connect(async err => {
+
+    const collection = client.db("CargoAppDb").collection("Cargos");
+
+    const res = await collection.deleteOne({
+      Adress: data,
+    });
+
+    client.close();
+  });
+
+});
+
+ipcMain.on('update-cargo', (event, data) => {
+  client.connect(async err => {
+    const collection = client.db("CargoAppDb").collection("Cargos");
+
+    const query = { Adress: data }
+    const res = await collection.updateOne(query, { $set: { Status: 'Completed' } });
 
     client.close();
 
   });
 
 });
+
+ipcMain.on('show-dialog', (event, data) => {
+  const window = BrowserWindow.getFocusedWindow();
+  dialog.showMessageBox(window, {
+    title: 'Verify',
+    buttons: ['Continue'],
+    type: 'info',
+    message: data,
+  });
+})
 
