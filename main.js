@@ -7,6 +7,7 @@ const { MongoClient } = require('mongodb');
 const { monitorEventLoopDelay } = require('perf_hooks');
 const { Console, table } = require('console');
 const { isProxy } = require('util/types');
+
 const uri = "mongodb+srv://Charon:Ns190202069@navigation.xptsq.mongodb.net/CargoAppDb?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -60,151 +61,10 @@ ipcMain.on('welcome', function (event, sentence) {
   console.log(sentence);
 });
 
-ipcMain.on('login-valid', (event, data) => {
-  client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Users");
-
-    const res = await collection.findOne(data);
-
-    client.close();
-
-    if (!!res) {
-
-      user = data;
-
-      console.log('DEBUG: yeni kullanici geldi : ' + data.UserName);
-
-      BrowserWindow.getFocusedWindow().loadFile('sahneler/transition.html');
-      console.log('DEBUG: sahneler/transition.html sayfasina gidiyoz.');
-
-    }
-
-  });
-
-});
-
 ipcMain.on('load-file', (event, data) => {
 
   BrowserWindow.getFocusedWindow().loadFile(data);
   console.log('DEBUG: ' + data + ' sayfasina gidiyoz.');
-});
-
-ipcMain.on('new-user', (event, data) => {
-  client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Users");
-
-    const res = await collection.insertOne(data);
-
-    console.log('DEBUG: Yeni kullanici olusturuldu :' + res.UserName);
-    client.close();
-
-  });
-
-});
-
-ipcMain.on('password-change', (event, data) => {
-  client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Users");
-
-    const query = { UserName: data.UserName, EMail: data.EMail }
-    const res = await collection.updateOne(query, { $set: { Password: data.Password } });
-    if (res.matchedCount > 0) {
-      event.reply('show-success-message');
-    } else {
-      event.reply('show-error-message');
-    }
-    client.close();
-
-  });
-
-});
-
-ipcMain.on('new-cord', (event, data) => {
-  console.log(data);
-  client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Cargos");
-    data.Status = 'On its Way';
-    const res = await collection.insertOne(data);
-
-    //console.log('DEBUG: Yeni Kordinat olusturuldu :' + res);
-    client.close();
-
-  });
-});
-
-ipcMain.on('new-user-cord', (event, data) => {
-
-  client.connect(async err => {
-
-    const collection = client.db("CargoAppDb").collection("Users");
-
-    const query = user;
-    const res = await collection.updateOne(query, { $set: data });
-    client.close();
-
-  });
-});
-
-function dc_to_html(inp) {
-
-  let new_html = "<tr><td>" + inp.CustomerName + " <td>" + inp.Adress + "</td> <td>" + inp.Status + "</td>" + `
-  <td class='but btn'>Delete</td>
-  <td class='but btn'>Add</td>
-  <td class='but btn'>Complete</td>` + "</tr>";
-
-  return new_html;
-}
-
-ipcMain.on('table-list', (event, data) => {
-
-  client.connect(async err => {
-
-    const collection = client.db("CargoAppDb").collection("Cargos");
-
-    const res = await collection.find().toArray();
-    var const_html = `<thead><tr><th>Customer Name</th><th>Cargo Name</th><th>Cargo Status</th><th>Delete</th><th>Add</th><th>Complete</th></tr></thead>`;
-
-    for (var i = 0; i < res.length; i++) {
-
-      if (res[i].Adress.includes(data)) {
-
-        const_html += dc_to_html(res[i]);
-      }
-    }
-
-    event.reply('convert-html', const_html);
-
-    client.close();
-  });
-
-});
-
-ipcMain.on('delete-cargo', (event, data) => {
-
-  client.connect(async err => {
-
-    const collection = client.db("CargoAppDb").collection("Cargos");
-
-    const res = await collection.deleteOne({
-      Adress: data,
-    });
-
-    client.close();
-  });
-
-});
-
-ipcMain.on('update-cargo', (event, data) => {
-  client.connect(async err => {
-    const collection = client.db("CargoAppDb").collection("Cargos");
-
-    const query = { Adress: data }
-    const res = await collection.updateOne(query, { $set: { Status: 'Completed' } });
-
-    client.close();
-
-  });
-
 });
 
 ipcMain.on('show-dialog', (event, data) => {
@@ -217,3 +77,28 @@ ipcMain.on('show-dialog', (event, data) => {
   });
 })
 
+ipcMain.on('get-all', (event, data)=>{
+  client.connect(async err => {
+    console.log('database e girdim');
+
+    const collection = client.db("CargoAppDb").collection("Cargos");
+    const collection2 = client.db("CargoAppDb").collection("Users");
+
+    let cords = []; 
+    const res = await collection.find().toArray();
+    const res2 = await collection2.find().toArray(); //1 tane
+
+    cords.push(res2[0].Coordinate); //User location önce eklemek için.
+
+    res.forEach((item)=>{
+      cords.push(item.Coordinate);
+    })
+    
+    cords.push(res2[0].Coordinate);
+
+    event.reply('send-loc', cords);
+  
+    console.log(cords);
+    client.close();
+  });
+})

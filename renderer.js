@@ -1,20 +1,62 @@
+var map = L.map('mapid').setView([51.505, -0.09], 13);
 const { ipcRenderer } = require('electron');
 
-document.getElementById("btnLogin").addEventListener('click', () => {
+const apiKey = 'pk.eyJ1Ijoibml5YXppc2FoaW4iLCJhIjoiY2t1dnEzNGUyMXhuejJ1cXY4Y2hiNDN4ZCJ9.RZo41tIbfal8CGgX6NVpaw';
 
-    let UserName = document.getElementById('floatingInput').value;
-    let Password = document.getElementById('floatingPassword').value;
+const provider = new window.GeoSearch.OpenStreetMapProvider();
 
-    ipcRenderer.send('login-valid', { UserName: UserName, Password: Password });
+const searchControl = new window.GeoSearch.GeoSearchControl({
+    provider: provider,
+    keepResult: true,
+    retainZoomLevel: true,
+});
 
+var marker;
+var geocoder = L.Control.Geocoder.mapbox({ apiKey: apiKey });
+
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibml5YXppc2FoaW4iLCJhIjoiY2t1dnEzNGUyMXhuejJ1cXY4Y2hiNDN4ZCJ9.RZo41tIbfal8CGgX6NVpaw', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: apiKey
+}).addTo(map);
+
+map.addControl(searchControl);
+
+function onMapClick(e) {
+    ipcRenderer.send('get-all');
+    geocoder.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function (results) {
+        var r = results[0];
+
+        if (r) {
+            if (marker) {
+                marker
+                    .setLatLng(r.center)
+                    .setPopupContent(r.html || r.name)
+                    .openPopup();
+            } else {
+                marker = L.marker(r.center)
+                    .bindPopup(r.name)
+                    .addTo(map)
+                    .openPopup();
+            }
+        }
+    });
+}
+
+map.on('click', onMapClick);
+
+ipcRenderer.on('send-loc', (event, data) => {
+
+    map.setView([data[0].lat, data[0].lng], 13);
+
+    data.forEach(item => {
+
+        let marker = L.marker(item)
+            .addTo(map)
+            .openPopup();
+    });
 })
-
-document.getElementById("btnSignUp").addEventListener('click', () => {
-    ipcRenderer.send('load-file', 'sahneler/signup.html');
-})
-
-document.getElementById("btnforgetPassword").addEventListener('click', () => {
-    ipcRenderer.send('load-file', 'sahneler/forget_password.html');
-})
-
 

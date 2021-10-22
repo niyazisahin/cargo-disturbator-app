@@ -98,16 +98,9 @@ body {
   transition: 0.5s;
 }
 
-.up{
-  height: 15%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  align-items: center;
-}
 
 .down{
-  height: 85%;
+  height: 100%;
   width: 100%;
   position: absolute;
   bottom: 0;
