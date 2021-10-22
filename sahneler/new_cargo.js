@@ -14,7 +14,20 @@ const searchControl = new window.GeoSearch.GeoSearchControl({
 });
 
 var marker;
-var geocoder = L.Control.Geocoder.mapbox({ apiKey: apiKey });
+//var geocoder = L.Control.Geocoder.nominatim();
+
+var geocoder = L.Control.Geocoder.nominatim();
+      if (typeof URLSearchParams !== 'undefined' && location.search) {
+        // parse /?geocoder=nominatim from URL
+        var params = new URLSearchParams(location.search);
+        var geocoderString = params.get('geocoder');
+        if (geocoderString && L.Control.Geocoder[geocoderString]) {
+          console.log('Using geocoder', geocoderString);
+          geocoder = L.Control.Geocoder[geocoderString]();
+        } else if (geocoderString) {
+          console.warn('Unsupported geocoder', geocoderString);
+        }
+      }
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibml5YXppc2FoaW4iLCJhIjoiY2t1dnEzNGUyMXhuejJ1cXY4Y2hiNDN4ZCJ9.RZo41tIbfal8CGgX6NVpaw', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
