@@ -2,6 +2,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const path = require('path')
+const socket = require('socket.io')
 
 const { MongoClient } = require('mongodb');
 const { monitorEventLoopDelay } = require('perf_hooks');
@@ -127,6 +128,7 @@ ipcMain.on('new-cord', (event, data) => {
     const res = await collection.insertOne(data);
 
     //console.log('DEBUG: Yeni Kordinat olusturuldu :' + res);
+    io.emit('message', 'Kargo Eklendi');
     client.close();
 
   });
@@ -188,6 +190,7 @@ ipcMain.on('delete-cargo', (event, data) => {
     const res = await collection.deleteOne({
       Adress: data,
     });
+    io.emit('message', 'Kargo silindi');
 
     client.close();
   });
@@ -217,3 +220,17 @@ ipcMain.on('show-dialog', (event, data) => {
   });
 })
 
+
+const http = require('http').createServer();
+
+const io = require('socket.io')(http, {
+    cors: { origin: "*" }
+});
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+
+
+});
+
+http.listen(8080, () => console.log('listening on http://localhost:8080') );
