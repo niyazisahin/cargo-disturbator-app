@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, ipcRenderer } = require('electron');
 
+var mainWindow;
 const path = require('path')
 
 const { MongoClient } = require('mongodb');
@@ -15,7 +16,7 @@ var user;
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -96,9 +97,22 @@ ipcMain.on('get-all', (event, data)=>{
     
     cords.push(res2[0].Coordinate);
 
-    event.reply('send-loc', cords);
+    mainWindow.webContents.send('send-loc', cords)
+
+    //event.reply('send-loc', cords);
   
     console.log(cords);
     client.close();
   });
 })
+
+const io = require("socket.io-client");
+
+const socket = io('ws://localhost:8080');
+
+socket.on('message', text => {
+
+  console.log(text );
+  ipcMain.emit('get-all');
+
+});

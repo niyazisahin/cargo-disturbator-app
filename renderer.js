@@ -50,6 +50,11 @@ map.on('click', onMapClick);
 
 ipcRenderer.on('send-loc', (event, data) => {
 
+    map.eachLayer((layer) => {
+        if(layer['_latlng']!=undefined)
+            layer.remove();
+    });
+
     map.setView([data[0].lat, data[0].lng], 13);
 
     data.forEach(item => {
