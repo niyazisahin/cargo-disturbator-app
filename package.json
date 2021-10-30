@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.2.6",
+    "curl": "^0.1.4",
     "esri-leaflet": "^3.0.3",
     "esri-leaflet-geocoder": "^3.1.1",
     "leaflet": "^1.7.1",

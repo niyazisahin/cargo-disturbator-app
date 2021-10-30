@@ -78,30 +78,30 @@ ipcMain.on('show-dialog', (event, data) => {
   });
 })
 
-ipcMain.on('get-all', (event, data)=>{
+ipcMain.on('get-all', (event, data) => {
   client.connect(async err => {
-    console.log('database e girdim');
+    console.log('database e girdim\n');
 
     const collection = client.db("CargoAppDb").collection("Cargos");
     const collection2 = client.db("CargoAppDb").collection("Users");
 
-    let cords = []; 
+    let cords = [];
     const res = await collection.find().toArray();
     const res2 = await collection2.find().toArray(); //1 tane
 
     cords.push(res2[0].Coordinate); //User location önce eklemek için.
 
-    res.forEach((item)=>{
-      cords.push(item.Coordinate);
+    res.forEach((item) => {
+      if (item.Status == 'On its Way') {
+
+        cords.push(item.Coordinate);
+
+      }
     })
-    
-    cords.push(res2[0].Coordinate);
 
     mainWindow.webContents.send('send-loc', cords)
 
-    //event.reply('send-loc', cords);
-  
-    console.log(cords);
+    console.log(cords, '\n');
     client.close();
   });
 })
@@ -112,7 +112,37 @@ const socket = io('ws://localhost:8080');
 
 socket.on('message', text => {
 
-  console.log(text );
+  console.log(text);
   ipcMain.emit('get-all');
 
 });
+
+
+ipcMain.on('print-graph', (event, data) => {
+
+  console.log('----- Graflar -----');
+
+  data.forEach((item) => {
+    var temp = '';
+    temp += '(' + item.cord.lat + ', ' + item.cord.lng + ') -> ';
+
+    for (const item2 of item.AdjList.keys()) {
+      temp += '(' + item2.cord.lat + ', ' + item2.cord.lng + ') ';
+    }
+    console.log(temp);
+  })
+  console.log('\n');
+});
+
+ipcMain.on('print-edges', (event, data) => {
+
+  console.log('\n----- Edges -----');
+
+  data.forEach((item) => {
+    var temp = '';
+    temp += '(' + item.n1.cord.lat + ', ' + item.n1.cord.lng + ') => ' + '(' + item.n2.cord.lat + ', ' + item.n2.cord.lng + ') : ' + item.distance;
+    console.log(temp);
+  })
+
+});
+
