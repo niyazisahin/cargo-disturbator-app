@@ -78,6 +78,11 @@ ipcMain.on('login-valid', (event, data) => {
       BrowserWindow.getFocusedWindow().loadFile('sahneler/transition.html');
       console.log('DEBUG: sahneler/transition.html sayfasina gidiyoz.');
 
+    } else {
+
+      event.reply('show-error-message');
+      console.log('DEBUG: kullanici girisi basarisiz.')
+
     }
 
   });
@@ -142,6 +147,7 @@ ipcMain.on('new-user-cord', (event, data) => {
 
     const query = user;
     const res = await collection.updateOne(query, { $set: data });
+    io.emit('message', 'Kullanici Eklendi');
     client.close();
 
   });
@@ -200,10 +206,18 @@ ipcMain.on('delete-cargo', (event, data) => {
 ipcMain.on('update-cargo', (event, data) => {
   client.connect(async err => {
     const collection = client.db("CargoAppDb").collection("Cargos");
+    const collection2 = client.db("CargoAppDb").collection("Users");
+
+    const cord = await collection.findOne({ Adress: data });
+    console.log('**************' + cord);
+    const query2 = user;
+    const res2 = await collection2.updateOne(query2, { $set: { Adress: data, Coordinate: cord.Coordinate } });
+
 
     const query = { Adress: data }
-    const res = await collection.updateOne(query, { $set: { Status: 'Completed' } });
 
+    const res = await collection.updateOne(query, { $set: { Status: 'Completed' } });
+    io.emit('message', 'Kargo Guncellendi');
     client.close();
 
   });
@@ -224,13 +238,13 @@ ipcMain.on('show-dialog', (event, data) => {
 const http = require('http').createServer();
 
 const io = require('socket.io')(http, {
-    cors: { origin: "*" }
+  cors: { origin: "*" }
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+  console.log('a user connected');
 
 
 });
 
-http.listen(8080, () => console.log('listening on http://localhost:8080') );
+http.listen(8080, () => console.log('listening on http://localhost:8080'));

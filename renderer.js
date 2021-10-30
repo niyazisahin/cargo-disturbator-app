@@ -17,4 +17,13 @@ document.getElementById("btnforgetPassword").addEventListener('click', () => {
     ipcRenderer.send('load-file', 'sahneler/forget_password.html');
 })
 
+var error = document.getElementById('errorMessage');
+
+ipcRenderer.on('show-error-message', (event) => {
+
+    error.style.display = 'block';
+    ipcRenderer.send('welcome', 'merhaba abi');
+    
+});
+
 
